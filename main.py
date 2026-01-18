@@ -1,7 +1,7 @@
 import yfinance as yf
 
 def main():
-    ticker_symbol = "MSFT"
+    ticker_symbol = "EURUSD=X"
 
     # Create a Ticker object
     ticker = yf.Ticker(ticker_symbol)
