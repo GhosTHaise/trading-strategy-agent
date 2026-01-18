@@ -1,19 +1,21 @@
 import yfinance as yf
 import pandas_ta as ta
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
+from langchain_core.prompts import PromptTemplate
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # 1. Configuration de Gemini via LangChain
 llm = ChatGoogleGenerativeAI(
-    model="gemini-1.5-flash",
+    model="gemini-2.5-flash",
     temperature=0.2 # On garde une température basse pour la précision technique
 )
 
 def analyze_with_langchain(data_summary):
     # 2. Définition du Template (La Stratégie)
     template = """
-    Tu es un expert en trading algorithmique spécialisé dans le marché Forex.
+    Tu es un expert en trading algorithmique spécialisé dans le marché {symbol}.
     Voici les données techniques récentes pour l'actif {ticker} :
     
     - Prix de clôture : {price}
@@ -30,10 +32,12 @@ def analyze_with_langchain(data_summary):
     SIGNAL: [ACHAT/VENTE/ATTENTE]
     LOGIQUE: [Ta justification courte]
     STOP_LOSS: [Calcul un niveau de prix logique]
+    
+    Donne des strategies de trading pour le marché : {symbol}.
     """
     
     prompt = PromptTemplate(
-        input_variables=["ticker", "price", "rsi", "sma20", "sma50"],
+        input_variables=["ticker", "price", "rsi", "sma20", "sma50", "symbol"],
         template=template
     )
     
@@ -58,7 +62,8 @@ def main():
         "price": round(last['Close'], 4),
         "rsi": round(last['RSI'], 2),
         "sma20": round(last['SMA_20'], 4),
-        "sma50": round(last['SMA_50'], 4)
+        "sma50": round(last['SMA_50'], 4),
+        "symbol" : ticker_symbol
     }
     
     result = analyze_with_langchain(data_for_ai)
